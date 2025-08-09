@@ -5,6 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import SiteLayout from "./components/layouts/SiteLayout";
+import Marketplace from "./pages/Marketplace";
+import ProductDetail from "./pages/ProductDetail";
+import Sell from "./pages/Sell";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -15,9 +21,16 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="/" element={<SiteLayout />}> 
+            <Route index element={<Index />} />
+            <Route path="pazar" element={<Marketplace />} />
+            <Route path="urun/:id" element={<ProductDetail />} />
+            <Route path="sat" element={<Sell />} />
+            <Route path="giris" element={<Login />} />
+            <Route path="kayit" element={<Register />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
