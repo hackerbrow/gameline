@@ -4,11 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
-  const onSubmit = (e: React.FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation() as any;
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("Giriş için Supabase entegrasyonu gerekli. Lütfen Supabase’i bağlayın.");
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message || "Giriş başarısız. Bilgilerinizi kontrol edin.");
+      return;
+    }
+    toast.success("Hoş geldin!");
+    const redirectTo = location.state?.from?.pathname || "/";
+    navigate(redirectTo, { replace: true });
   };
 
   return (
@@ -23,13 +41,16 @@ const Login = () => {
             <form onSubmit={onSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="email">E-posta</Label>
-                <Input id="email" type="email" required />
+                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Şifre</Label>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
-              <Button variant="hero" type="submit" className="w-full">Giriş</Button>
+              <Button variant="hero" type="submit" className="w-full" disabled={loading}>{loading ? "Giriş yapılıyor..." : "Giriş"}</Button>
+              <p className="text-sm text-muted-foreground">
+                Hesabın yok mu? <Link to="/kayit" className="underline">Kayıt ol</Link>
+              </p>
             </form>
           </CardContent>
         </Card>

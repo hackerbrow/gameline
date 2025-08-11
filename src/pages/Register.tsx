@@ -4,11 +4,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
-  const onSubmit = (e: React.FormEvent) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("Kayıt için Supabase entegrasyonu gerekli. Lütfen Supabase’i bağlayın.");
+    setLoading(true);
+    const redirectUrl = `${window.location.origin}/`;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: { name },
+      },
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
+      return;
+    }
+
+    if (data?.user) {
+      toast.success("Doğrulama e-postası gönderildi. Lütfen e-postanı kontrol et.");
+      navigate("/giris", { replace: true });
+    }
   };
 
   return (
@@ -23,17 +52,20 @@ const Register = () => {
             <form onSubmit={onSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Ad</Label>
-                <Input id="name" required />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">E-posta</Label>
-                <Input id="email" type="email" required />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Şifre</Label>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
-              <Button variant="hero" type="submit" className="w-full">Kayıt Ol</Button>
+              <Button variant="hero" type="submit" className="w-full" disabled={loading}>{loading ? "Kaydediliyor..." : "Kayıt Ol"}</Button>
+              <p className="text-sm text-muted-foreground">
+                Zaten hesabın var mı? <Link to="/giris" className="underline">Giriş yap</Link>
+              </p>
             </form>
           </CardContent>
         </Card>

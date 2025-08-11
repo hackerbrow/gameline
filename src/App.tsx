@@ -11,29 +11,33 @@ import ProductDetail from "./pages/ProductDetail";
 import Sell from "./pages/Sell";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AuthProvider from "@/contexts/AuthContext";
+import RequireAuth from "@/components/RequireAuth";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<SiteLayout />}> 
-            <Route index element={<Index />} />
-            <Route path="pazar" element={<Marketplace />} />
-            <Route path="urun/:id" element={<ProductDetail />} />
-            <Route path="sat" element={<Sell />} />
-            <Route path="giris" element={<Login />} />
-            <Route path="kayit" element={<Register />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<SiteLayout />}> 
+              <Route index element={<Index />} />
+              <Route path="pazar" element={<Marketplace />} />
+              <Route path="urun/:id" element={<ProductDetail />} />
+              <Route path="sat" element={<RequireAuth><Sell /></RequireAuth>} />
+              <Route path="giris" element={<Login />} />
+              <Route path="kayit" element={<Register />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

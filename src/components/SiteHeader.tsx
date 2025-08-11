@@ -1,5 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md transition-colors ${
@@ -7,6 +9,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 const SiteHeader = () => {
+  const { user } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -21,17 +25,28 @@ const SiteHeader = () => {
           <NavLink to="/sat" className={navLinkClass} aria-label="Sat">
             Sat
           </NavLink>
-          <NavLink to="/admin" className={navLinkClass} aria-label="Admin">
-            Admin
-          </NavLink>
         </nav>
         <div className="flex items-center gap-2">
-          <NavLink to="/giris">
-            <Button variant="ghost" size="sm">Giriş</Button>
-          </NavLink>
-          <NavLink to="/kayit">
-            <Button variant="hero" size="sm">Kayıt Ol</Button>
-          </NavLink>
+          {user ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                await supabase.auth.signOut();
+              }}
+            >
+              Çıkış
+            </Button>
+          ) : (
+            <>
+              <NavLink to="/giris">
+                <Button variant="ghost" size="sm">Giriş</Button>
+              </NavLink>
+              <NavLink to="/kayit">
+                <Button variant="hero" size="sm">Kayıt Ol</Button>
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
     </header>
